@@ -73,15 +73,17 @@ function update(req, res) {
 // Destroy - Elimina un post
 function destroy(req, res) {
   const postSlug = req.params.slug;
-  const index = post.findIndex((p) => p.slug === postSlug);
 
-  if (index === -1) {
-    return res.status(404).json({ error: "Post non trovato" });
-  }
+  const sql = "DELETE FROM posts WHERE id = ?";
 
-  post.splice(index, 1);
-  console.log("Post eliminato:", postSlug);
-  res.sendStatus(204);
+  connection.query(sql, [postSlug], (err, results) => {
+    if (err) return res.status(500).json({ message: "Query Failed" });
+    if (results.affectedRows === 0)
+      return res.status(404).json({ message: "There is nothing to delete" });
+    //console.log(results);
+
+    res.sendStatus(204);
+  });
 }
 
 module.exports = { index, show, store, update, destroy };
