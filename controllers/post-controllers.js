@@ -4,15 +4,11 @@ const post = require("../data/post-1");
 
 // Index - Restituisce tutti i post
 function index(req, res) {
-  const tag = req.query.tags;
-  const filteredPost = post.filter(
-    (thisPost) => thisPost.tags && thisPost.tags.includes(tag)
-  );
-  if (tag) {
-    return res.json(filteredPost);
-  } else {
-    res.json(post);
-  }
+  const sql = "SELECT * FROM posts";
+  connection.query(sql, (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(result);
+  });
 }
 
 // Show - Restituisce un post specifico in base allo slug
