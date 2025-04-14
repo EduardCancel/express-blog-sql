@@ -11,18 +11,39 @@ function index(req, res) {
   });
 }
 
-// Show - Restituisce un post specifico in base allo slug
+// Show - Restituisce un post specifico in base all'id
 function show(req, res) {
-  const postSlug = req.params.slug;
-  console.log("Slug ricevuto:", postSlug);
+  const postId = Number(req.params.id);
+  const sql = "SELECT * FROM posts WHERE id = ?";
 
-  const postFound = post.find((p) => p.slug === postSlug);
+  const sqlJoin = `
+    SELECT tags.label
+    FROM post_tag
+    JOIN tags ON post_tag.tag_id = tags.id
+    WHERE post_tag.post_id = ?
+  `;
 
-  if (!postFound) {
-    return res.status(404).json({ error: "Post non trovato" });
-  }
+  connection.query(sql, [postId], (err, postResults) => {
+    if (err) {
+      console.error("Error executing main query:", err);
+      return res.status(500).json({ message: "Query failed" });
+    }
+    if (postResults.length === 0)
+      return res.status(404).json({ message: "Post not found" });
 
-  res.json(postFound);
+    const post = postResults[0];
+
+    connection.query(sqlJoin, [postId], (err, tagResults) => {
+      if (err) {
+        console.error("Error executing tag query:", err);
+        return res.status(500).json({ message: "Query failed" });
+      }
+      console.log(tagResults);
+      post.tags = tagResults;
+
+      res.json(post);
+    });
+  });
 }
 
 // Store - Crea un nuovo post
@@ -72,15 +93,14 @@ function update(req, res) {
 
 // Destroy - Elimina un post
 function destroy(req, res) {
-  const postSlug = req.params.slug;
+  const id = req.params.id;
 
   const sql = "DELETE FROM posts WHERE id = ?";
 
-  connection.query(sql, [postSlug], (err, results) => {
+  connection.query(sql, [id], (err, results) => {
     if (err) return res.status(500).json({ message: "Query Failed" });
     if (results.affectedRows === 0)
       return res.status(404).json({ message: "There is nothing to delete" });
-    //console.log(results);
 
     res.sendStatus(204);
   });

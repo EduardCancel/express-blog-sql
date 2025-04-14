@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const postControllers = require("../controllers/post-controllers.js"); // Assicurati che il percorso sia corretto
+const postControllers = require("../controllers/post-controllers.js");
 
 // Index - Restituisce tutti i post
 router.get("/", postControllers.index);
 
-// Show - Restituisce un post specifico in base allo slug
-router.get("/:slug", postControllers.show);
+// Show - Restituisce un post specifico in base all'id
+router.get("/:id", postControllers.show);
 
 // Store - Crea un nuovo post
 router.post("/", postControllers.store);
