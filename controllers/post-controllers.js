@@ -1,4 +1,6 @@
-const post = require("../data/post-1"); // Assicurati che sia un array
+const connection = require("../data/dataBase");
+
+const post = require("../data/post-1");
 
 // Index - Restituisce tutti i post
 function index(req, res) {
